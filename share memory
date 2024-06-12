@@ -1,0 +1,37 @@
+input:
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+
+#define SHM_SIZE 1024  // Define the size of shared memory
+
+int main() {
+    key_t key = ftok("shmfile", 65);  // Generate a unique key
+    int shmid = shmget(key, SHM_SIZE, 0666);  // Get the shared memory segment
+
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    char *data = (char*) shmat(shmid, (void*)0, 0);  // Attach to the shared memory
+    if (data == (char*)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Data read from memory: %s\n", data);  // Read and print the data from shared memory
+
+    if (shmdt(data) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {  // Mark the shared memory segment to be destroyed
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
+}
