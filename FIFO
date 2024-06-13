@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_FRAMES 3  // Maximum number of frames in memory
+
+// Function to check if a page is in the frame
+int isPageInFrame(int frames[], int page) {
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        if (frames[i] == page) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Function to print the current state of frames
+void printFrames(int frames[]) {
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        if (frames[i] == -1) {
+            printf("[ ] ");
+        } else {
+            printf("[%d] ", frames[i]);
+        }
+    }
+    printf("\n");
+}
+
+// FIFO page replacement simulation
+void fifoPageReplacement(int pages[], int n) {
+    int frames[MAX_FRAMES];
+    int pageFaults = 0;
+    int currentIndex = 0;
+
+    // Initialize frames to -1 to indicate empty
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        frames[i] = -1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        int page = pages[i];
+        if (!isPageInFrame(frames, page)) {
+            // Page fault occurs
+            frames[currentIndex] = page;
+            currentIndex = (currentIndex + 1) % MAX_FRAMES;
+            pageFaults++;
+            printf("Page %d loaded into frame: ", page);
+        } else {
+            printf("Page %d already in frame: ", page);
+        }
+        printFrames(frames);
+    }
+
+    printf("\nTotal Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    int pages[] = {1, 3, 0, 3, 5, 6, 3};
+    int n = sizeof(pages) / sizeof(pages[0]);
+
+    printf("FIFO Page Replacement Simulation\n");
+    printf("Page Reference String: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", pages[i]);
+    }
+    printf("\n\n");
+
+    fifoPageReplacement(pages, n);
+
+    return 0;
+}
